@@ -1,0 +1,139 @@
+.topnav {
+    overflow: hidden;
+    display: flex;
+}
+
+.topnav a {
+    color: #f2f2f2;
+    text-align: center;
+    text-decoration: none;
+    flex-grow: 1;
+    padding:1em;
+}
+
+.topnav a:hover {
+    background-color: rgba(16, 37, 66, 0.7);
+
+}
+
+.topnav a.active {
+    color: violet;
+    background-color: rgba(16, 37, 66, 0.7);
+
+}
+
+body {
+    margin:0;
+    font-size: 4vmin;
+    font-family: 'Roboto', sans-serif;
+    color: #f2f2f2;
+    background: url(../assets/space.jpg) no-repeat center center fixed;
+    background-size: cover;
+    	
+text-shadow: 2px 4px 3px rgba(0,0,0,0.3);
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+    flex-wrap:wrap;
+}
+.card{
+    margin:1em;
+    padding:1em;
+      background-color: rgba(16, 37, 66, 0.7);
+    border-radius:2em;
+    text-align: center;
+}
+.card a{
+    color:whitesmoke;
+}
+.header{
+    font-size:2em;
+}
+.welcome{
+    overflow:hidden;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content: space-between;
+    user-select: none;
+}
+.welcomeText{
+    text-align: center;
+    width:100%;
+    margin:0.4em;
+    font-size:2em;
+    opacity:0;
+}
+.stagger1{
+    animation-name: fadeIn;
+    animation-fill-mode:forwards;
+    	animation-duration: 2s;
+}
+.stagger2{
+    animation-name: fadeIn;
+    animation-fill-mode:forwards;
+    	animation-duration: 2s;
+        	animation-delay: 2s;
+}
+.stagger3{
+    animation-name: fadeIn;
+    animation-fill-mode:forwards;
+    	animation-duration: 2s;
+        	animation-delay: 4s;
+}
+.stagger4{
+    animation-name: fadeIn;
+    animation-fill-mode:forwards;
+    	animation-duration: 2s;
+        	animation-delay: 6s;
+}
+.stagger5{
+    animation-name: fadeIn;
+    animation-fill-mode:forwards;
+    	animation-duration: 2s;
+        	animation-delay: 8s;
+}
+.blink1{
+            background-color:none;
+    animation-name: blinking;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in;
+    animation-delay:10s;
+}
+
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+        transform: scale(200%);
+            filter:blur(20px);
+	}
+	100% {
+		opacity: 1;
+        transform: scale(100%);
+        filter:blur(0px);
+	}
+}
+@keyframes blinking{
+    0% {
+        background-color:none;
+    }
+    50%{
+        background-color:rgba(0,250,154,0.4);
+    }
+      100%{
+        background-color:none;
+    }
+}
+
+
+body:after {
+  content: '';
+     pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  box-shadow: inset 0px 0px 60px black;
+}
