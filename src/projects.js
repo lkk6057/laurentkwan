@@ -1,5 +1,5 @@
 function isInViewport(element) {
-    const yPos = element.getBoundingClientRect().y;
+    const yPos = element.getBoundingClientRect().top;
     return yPos < window.innerHeight && yPos > -element.offsetHeight;
 }
 
