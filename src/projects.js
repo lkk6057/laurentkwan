@@ -5,23 +5,17 @@ function isInViewport(element) {
 
 
 var projects = document.getElementsByName("project");
-updateProjectNodes();
 
-$( document ).ready(function() {
-   updateProjectNodes();
+$(document).ready(function () {
+    window.addEventListener("scroll", updateProjectNodes);
+    updateProjectNodes();
 });
 
-window.addEventListener("scroll", scroll);
-
-function scroll(e) {
-    updateProjectNodes();
-}
 
 function updateProjectNodes() {
     for (var i = 0; i < projects.length; i++) {
         var ele = projects[i];
         var inview = isInViewport(ele);
-                    var even = false;
         if (inview) {
             ele.className = "card slideInLeft";
         } else {
