@@ -80,6 +80,7 @@ body {
     background-color: rgba(16, 37, 66, 0.7);
     border-radius: 1em;
     text-align: center;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2)
 }
 
 .card a {
@@ -166,17 +167,24 @@ body {
     animation-delay: 12s;
 }
 
+.frameEmbed{
+    width:30em;
+    height:15em;
+}
+
+.mazeEmbed{
+    width:30em;
+    height:17em;
+}
 
 @keyframes fadeIn {
     0% {
         opacity: 0;
-        //transform:scale(200%);
         filter: blur(20px);
     }
 
     100% {
         opacity: 1;
-        //transform:scale(100%);
         filter: blur(0px);
     }
 }
@@ -238,4 +246,11 @@ body:after {
     bottom: 0;
     right: 0;
     box-shadow: inset 0px 0px 100px black;
+}
+
+.bullet{
+    display:block;
+}
+.bullet:before{
+    content:'• ';
 }
