@@ -255,3 +255,7 @@ body:after {
 .bullet:before {
     content: '• ';
 }
+
+.centered{
+    text-align: center;
+}
