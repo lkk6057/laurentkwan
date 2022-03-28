@@ -1,139 +1,223 @@
 .topnav {
+    position: fixed;
+    width:100%;
     overflow: hidden;
     display: flex;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    z-index: 3;
 }
 
 .topnav a {
+    font-weight:bolder;
+        background-color: rgba(16, 37, 66, 0.7);
     color: #f2f2f2;
     text-align: center;
     text-decoration: none;
     flex-grow: 1;
-    padding:1em;
+    padding: 1em;
 }
 
 .topnav a:hover {
-    background-color: rgba(16, 37, 66, 0.7);
-
+    background-color: rgba(16, 80, 66, 0.7);
+    
 }
 
 .topnav a.active {
-    color: violet;
-    background-color: rgba(16, 37, 66, 0.7);
-
+    color: #fa7df5;
+    background-color: rgba(16, 80, 66, 0.7);
 }
 
 body {
-    margin:0;
+    margin: 0;
     font-size: 4vmin;
     font-family: 'Roboto', sans-serif;
-    color: #f2f2f2;
+  color: #f2f2f2;
     background: url(../assets/space.jpg) no-repeat center center fixed;
     background-size: cover;
-    	
-text-shadow: 2px 4px 3px rgba(0,0,0,0.3);
+
+    text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
+}
+.about{
+    width:80%;
+    word-break: break-word;
+    text-align: center;
+}
+.content {
+    width:100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    position:absolute;
+    top:15vh;
 }
 
-.content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-    flex-wrap:wrap;
+.fadeIn{
+    animation-name: fadeIn2;
+    animation-fill-mode: forwards;
+    animation-duration: 2s;
 }
-.card{
-    margin:1em;
-    padding:1em;
-      background-color: rgba(16, 37, 66, 0.7);
-    border-radius:2em;
+
+.slideInLeft{
+       animation-name: slideInLeft;
+    animation-fill-mode: forwards;
+    animation-duration: 1s; 
+}
+.card {
+    margin: 1em;
+    width: 80%;
+    padding: 1em;
+    background-color: rgba(16, 37, 66, 0.7);
+    border-radius: 1em;
     text-align: center;
 }
-.card a{
-    color:whitesmoke;
+
+.card a {
+    color: whitesmoke;
 }
-.header{
-    font-size:2em;
+
+.header {
+    font-size: 2em;
+    font-weight:bolder;
 }
-.welcome{
-    overflow:hidden;
-    display:flex;
-    flex-wrap:wrap;
+.left{
+          transform:translate(-100vw,0);
+}
+.right{
+              transform:translate(100vw,0);
+}
+.welcome {
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     user-select: none;
+    height:80vh;
 }
-.welcomeText{
+
+.welcomeText {
     text-align: center;
-    width:100%;
-    margin:0.4em;
-    font-size:2em;
+    width: 100%;
+    padding:0.3em;
+    font-size: 2em;
+}
+.transparent{
     opacity:0;
 }
-.stagger1{
-    animation-name: fadeIn;
-    animation-fill-mode:forwards;
-    	animation-duration: 2s;
+.absolute{
+    position:absolute;
 }
-.stagger2{
+.stagger1 {
     animation-name: fadeIn;
-    animation-fill-mode:forwards;
-    	animation-duration: 2s;
-        	animation-delay: 2s;
+    animation-fill-mode: forwards;
+    animation-duration: 2s;
 }
-.stagger3{
+
+.stagger2 {
     animation-name: fadeIn;
-    animation-fill-mode:forwards;
-    	animation-duration: 2s;
-        	animation-delay: 4s;
+    animation-fill-mode: forwards;
+    animation-duration: 2s;
+    animation-delay: 2s;
 }
-.stagger4{
+
+.stagger3 {
     animation-name: fadeIn;
-    animation-fill-mode:forwards;
-    	animation-duration: 2s;
-        	animation-delay: 6s;
+    animation-fill-mode: forwards;
+    animation-duration: 2s;
+    animation-delay: 4s;
 }
-.stagger5{
-    animation-name: fadeIn;
-    animation-fill-mode:forwards;
-    	animation-duration: 2s;
-        	animation-delay: 8s;
+
+.stagger4 {  
+    animation-name: slideInLeft;
+    animation-fill-mode: forwards;
+    animation-duration: 3s;
+    animation-delay: 6s;
 }
-.blink1{
-            background-color:none;
+
+.stagger5 { 
+    animation-name: slideInRight;
+    animation-fill-mode: forwards;
+    animation-duration: 3s;
+    animation-delay: 9s;
+}
+
+.blink1 {
+    background-color: none;
     animation-name: blinking;
     animation-duration: 1.5s;
     animation-iteration-count: infinite;
     animation-timing-function: ease-in;
-    animation-delay:10s;
+    animation-delay: 12s;
 }
 
 
 @keyframes fadeIn {
-	0% {
-		opacity: 0;
-        transform: scale(200%);
-            filter:blur(20px);
-	}
-	100% {
-		opacity: 1;
-        transform: scale(100%);
-        filter:blur(0px);
-	}
-}
-@keyframes blinking{
     0% {
-        background-color:none;
+        opacity: 0;
+        transform: scale(200%);
+        filter: blur(20px);
     }
-    50%{
-        background-color:rgba(0,250,154,0.4);
+
+    100% {
+        opacity: 1;
+        transform: scale(100%);
+        filter: blur(0px);
     }
-      100%{
-        background-color:none;
+}
+
+@keyframes fadeIn2 {
+    0% {
+        opacity:0;
+        filter: blur(20px);
+    }
+
+    100% {
+        opacity:1;
+        filter: blur(0px);
+    }
+}
+
+@keyframes slideInLeft{
+    0%{
+        opacity:1;
+      transform:translate(-100vw,0);  
+    }
+    100%{
+       transform:translate(0,0);  
+    }
+}
+
+
+@keyframes slideInRight{
+    0%{
+      transform:translate(100vw,0);  
+    }
+    100%{
+       transform:translate(0,0);  
+    }
+}
+@keyframes blinking {
+    0% {
+        background-color: none;
+    }
+
+    50% {
+        background-color: rgba(0, 250, 154, 0.4);
+    }
+
+    100% {
+        background-color: none;
     }
 }
 
 
 body:after {
-  content: '';
-     pointer-events: none;
-  position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
-  box-shadow: inset 0px 0px 60px black;
+    content: '';
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    box-shadow: inset 0px 0px 100px black;
 }
