@@ -1,15 +1,15 @@
 .topnav {
     position: fixed;
-    width:100%;
+    width: 100%;
     overflow: hidden;
     display: flex;
-      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     z-index: 3;
 }
 
 .topnav a {
-    font-weight:bolder;
-        background-color: rgba(16, 37, 66, 0.7);
+    font-weight: bolder;
+    background-color: rgba(16, 37, 66, 0.7);
     color: #f2f2f2;
     text-align: center;
     text-decoration: none;
@@ -19,50 +19,60 @@
 
 .topnav a:hover {
     background-color: rgba(16, 80, 66, 0.7);
-    
+
 }
 
 .topnav a.active {
-    color: #fa7df5;
-    background-color: rgba(16, 80, 66, 0.7);
+    background-color: rgba(61, 49, 74, 0.7);
 }
 
 body {
     margin: 0;
     font-size: 4vmin;
     font-family: 'Roboto', sans-serif;
-  color: #f2f2f2;
+    color: #f2f2f2;
     background: url(../assets/space.jpg) no-repeat center center fixed;
     background-size: cover;
 
     text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
 }
-.about{
-    width:80%;
+
+.about {
+    width: 80%;
     word-break: break-word;
     text-align: center;
 }
+
 .content {
-    width:100%;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    position:absolute;
-    top:15vh;
+    position: absolute;
+    top: 15vh;
 }
 
-.fadeIn{
+.fadeIn {
     animation-name: fadeIn2;
     animation-fill-mode: forwards;
     animation-duration: 2s;
 }
 
-.slideInLeft{
-       animation-name: slideInLeft;
+.slideInLeft {
+    transform: translate(-100vw, 0);
+    animation-name: slideInLeft;
     animation-fill-mode: forwards;
-    animation-duration: 1s; 
+    animation-duration: 1s;
 }
+
+.slideInRight {
+    transform: translate(100vw, 0);
+    animation-name: slideInRight;
+    animation-fill-mode: forwards;
+    animation-duration: 1s;
+}
+
 .card {
     margin: 1em;
     width: 80%;
@@ -78,35 +88,41 @@ body {
 
 .header {
     font-size: 2em;
-    font-weight:bolder;
+    font-weight: bolder;
 }
-.left{
-          transform:translate(-100vw,0);
+
+.left {
+    transform: translate(-100vw, 0);
 }
-.right{
-              transform:translate(100vw,0);
+
+.right {
+    transform: translate(100vw, 0);
 }
+
 .welcome {
     overflow: hidden;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     user-select: none;
-    height:80vh;
+    height: 80vh;
 }
 
 .welcomeText {
     text-align: center;
     width: 100%;
-    padding:0.3em;
+    padding: 0.3em;
     font-size: 2em;
 }
-.transparent{
-    opacity:0;
+
+.transparent {
+    opacity: 0;
 }
-.absolute{
-    position:absolute;
+
+.absolute {
+    position: absolute;
 }
+
 .stagger1 {
     animation-name: fadeIn;
     animation-fill-mode: forwards;
@@ -127,14 +143,14 @@ body {
     animation-delay: 4s;
 }
 
-.stagger4 {  
+.stagger4 {
     animation-name: slideInLeft;
     animation-fill-mode: forwards;
     animation-duration: 3s;
     animation-delay: 6s;
 }
 
-.stagger5 { 
+.stagger5 {
     animation-name: slideInRight;
     animation-fill-mode: forwards;
     animation-duration: 3s;
@@ -154,48 +170,50 @@ body {
 @keyframes fadeIn {
     0% {
         opacity: 0;
-        transform: scale(200%);
+        //transform:scale(200%);
         filter: blur(20px);
     }
 
     100% {
         opacity: 1;
-        transform: scale(100%);
+        //transform:scale(100%);
         filter: blur(0px);
     }
 }
 
 @keyframes fadeIn2 {
     0% {
-        opacity:0;
+        opacity: 0;
         filter: blur(20px);
     }
 
     100% {
-        opacity:1;
+        opacity: 1;
         filter: blur(0px);
     }
 }
 
-@keyframes slideInLeft{
-    0%{
-        opacity:1;
-      transform:translate(-100vw,0);  
+@keyframes slideInLeft {
+    0% {
+        transform: translate(-100vw, 0);
     }
-    100%{
-       transform:translate(0,0);  
+
+    100% {
+        transform: translate(0, 0);
     }
 }
 
 
-@keyframes slideInRight{
-    0%{
-      transform:translate(100vw,0);  
+@keyframes slideInRight {
+    0% {
+        transform: translate(100vw, 0);
     }
-    100%{
-       transform:translate(0,0);  
+
+    100% {
+        transform: translate(0, 0);
     }
 }
+
 @keyframes blinking {
     0% {
         background-color: none;
