@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced 3D Doom-like Game with Bullets and Gun Rendering</title>
+    <style>
+        /* CSS styles */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .column {
+            position: absolute;
+            width: 2px;
+            background-color: #666666; /* Wall color */
+            z-index: 0;
+        }
+
+        .enemy {
+            position: absolute;
+            width: 2px;
+            background-color: #ff0000; /* Enemy color */
+            z-index: 1;
+        }
+
+        .bullet {
+            position: absolute;
+            background-color: #ffff00; /* Bullet color */
+            z-index: 1;
+        }
+
+        #gun {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background-color: #ffffff; /* Gun color */
+            opacity: 0.7;
+            z-index: 2;
+        }
+
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            z-index: 3;
+        }
+
+        #hud div {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Game container -->
+    <div id="game-container"></div>
+
+    <!-- HUD -->
+    <div id="hud">
+        <div id="score">Score: 0</div>
+        <div id="health">Health: 100</div>
+        <div id="enemy-count">Enemies Remaining: 0</div>
+        <div id="wave">Wave: 1</div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        // Game variables
+        const gameContainer = document.getElementById('game-container');
+        const ctxWidth = gameContainer.clientWidth;
+        const ctxHeight = gameContainer.clientHeight;
+
+        const TILE_SIZE = 64;
+        const FOV = Math.PI / 3; // 60 degrees field of view
+        const NUM_RAYS = ctxWidth / 2; // One ray per two horizontal pixels
+        const MAX_DEPTH = 800;
+
+        let map = [
+            [1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,0,0,0,1],
+            [1,0,1,0,1,1,1,0,0,1],
+            [1,0,1,0,0,0,1,0,0,1],
+            [1,0,1,1,1,0,1,1,0,1],
+            [1,0,0,0,1,0,0,1,0,1],
+            [1,1,1,0,1,1,0,1,0,1],
+            [1,0,0,0,0,0,0,1,0,1],
+            [1,0,0,0,1,1,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1],
+        ];
+
+        let player = {
+            x: TILE_SIZE * 1.5,
+            y: TILE_SIZE * 1.5,
+            angle: 0,
+            speed: 0,
+            turnSpeed: 0,
+            health: 100,
+            score: 0
+        };
+
+        let bullets = [];
+        let enemies = [];
+        let wave = 1;
+        let enemiesRemaining = 0;
+
+        let keys = {};
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp' || e.key === 'w') player.speed = 2;
+            if (e.key === 'ArrowDown' || e.key === 's') player.speed = -2;
+            if (e.key === 'ArrowLeft' || e.key === 'a') player.turnSpeed = -0.05;
+            if (e.key === 'ArrowRight' || e.key === 'd') player.turnSpeed = 0.05;
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                shoot();
+            }
+        });
+
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'ArrowUp' || e.key === 'w') player.speed = 0;
+            if (e.key === 'ArrowDown' || e.key === 's') player.speed = 0;
+            if (e.key === 'ArrowLeft' || e.key === 'a') player.turnSpeed = 0;
+            if (e.key === 'ArrowRight' || e.key === 'd') player.turnSpeed = 0;
+        });
+
+        function gameLoop() {
+            updatePlayer();
+            updateBullets();
+            updateEnemies();
+            renderScene();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updatePlayer() {
+            player.angle += player.turnSpeed;
+            let moveStep = player.speed;
+
+            let newX = player.x + Math.cos(player.angle) * moveStep;
+            let newY = player.y + Math.sin(player.angle) * moveStep;
+
+            if (!isWall(newX, newY)) {
+                player.x = newX;
+                player.y = newY;
+            }
+        }
+
+        function isWall(x, y) {
+            let mapX = Math.floor(x / TILE_SIZE);
+            let mapY = Math.floor(y / TILE_SIZE);
+            if (mapY < 0 || mapY >= map.length || mapX < 0 || mapX >= map[0].length) return true;
+            return map[mapY][mapX] !== 0;
+        }
+
+        function renderScene() {
+            gameContainer.innerHTML = ''; // Clear previous frame
+
+            let rayAngle = player.angle - FOV / 2;
+            for (let ray = 0; ray < NUM_RAYS; ray++) {
+                let { wallDist, type, texture } = castRay(rayAngle);
+                let correctedDist = wallDist * Math.cos(rayAngle - player.angle);
+                let lineHeight = (TILE_SIZE * ctxHeight) / correctedDist;
+
+                let color = '#666666';
+                if (type === 'enemy') {
+                    color = texture; // Enemy color based on health
+                }
+
+                let column = document.createElement('div');
+                column.className = type === 'wall' ? 'column' : 'enemy';
+                column.style.height = lineHeight + 'px';
+                column.style.left = (ray * (ctxWidth / NUM_RAYS)) + 'px';
+                column.style.width = Math.ceil(ctxWidth / NUM_RAYS) + 'px';
+                column.style.backgroundColor = color;
+
+                // Center the column vertically
+                column.style.top = (ctxHeight / 2 - lineHeight / 2) + 'px';
+
+                gameContainer.appendChild(column);
+
+                rayAngle += FOV / NUM_RAYS;
+            }
+
+            // Render bullets
+            for (let bullet of bullets) {
+                let dx = bullet.x - player.x;
+                let dy = bullet.y - player.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                let angleToBullet = Math.atan2(dy, dx) - player.angle;
+
+                // Normalize angle between -PI to PI
+                if (angleToBullet > Math.PI) angleToBullet -= 2 * Math.PI;
+                if (angleToBullet < -Math.PI) angleToBullet += 2 * Math.PI;
+
+                // If bullet is within FOV
+                if (Math.abs(angleToBullet) < FOV / 2) {
+                    let correctedDist = dist * Math.cos(angleToBullet);
+                    let lineHeight = (TILE_SIZE * ctxHeight) / correctedDist * 0.1; // Scale bullet size
+
+                    let bulletScreenX = (ctxWidth / 2) + Math.tan(angleToBullet) * (ctxWidth / 2) / Math.tan(FOV / 2);
+
+                    let bulletEl = document.createElement('div');
+                    bulletEl.className = 'bullet';
+                    bulletEl.style.height = lineHeight + 'px';
+                    bulletEl.style.width = lineHeight + 'px';
+                    bulletEl.style.left = (bulletScreenX - lineHeight / 2) + 'px';
+                    bulletEl.style.top = (ctxHeight / 2 - lineHeight / 2) + 'px';
+                    bulletEl.style.backgroundColor = '#ffff00';
+                    gameContainer.appendChild(bulletEl);
+                }
+            }
+
+            // Render the gun (added after other elements to ensure it renders on top)
+            let gun = document.createElement('div');
+            gun.id = 'gun';
+            gameContainer.appendChild(gun);
+
+            // Update HUD
+            document.getElementById('score').innerText = 'Score: ' + player.score;
+            document.getElementById('health').innerText = 'Health: ' + Math.floor(player.health);
+            document.getElementById('enemy-count').innerText = 'Enemies Remaining: ' + enemiesRemaining;
+            document.getElementById('wave').innerText = 'Wave: ' + wave;
+        }
+
+        function castRay(angle) {
+            let sin = Math.sin(angle);
+            let cos = Math.cos(angle);
+
+            let stepSize = 5;
+            for (let depth = 0; depth < MAX_DEPTH; depth += stepSize) {
+                let x = player.x + cos * depth;
+                let y = player.y + sin * depth;
+
+                let mapX = Math.floor(x / TILE_SIZE);
+                let mapY = Math.floor(y / TILE_SIZE);
+
+                if (mapY < 0 || mapY >= map.length || mapX < 0 || mapX >= map[0].length) {
+                    return { wallDist: depth, type: 'wall' };
+                }
+
+                if (map[mapY][mapX] === 1) {
+                    return { wallDist: depth, type: 'wall' };
+                }
+
+                // Check for enemies
+                for (let enemy of enemies) {
+                    let ex = enemy.x;
+                    let ey = enemy.y;
+                    if (Math.abs(ex - x) < 5 && Math.abs(ey - y) < 5) {
+                        let color = getEnemyColor(enemy.health, enemy.maxHealth);
+                        return { wallDist: depth, type: 'enemy', texture: color };
+                    }
+                }
+            }
+            return { wallDist: MAX_DEPTH, type: 'none' };
+        }
+
+        function shoot() {
+            // Create a bullet
+            let bullet = {
+                x: player.x,
+                y: player.y,
+                angle: player.angle,
+                speed: 10,
+                width: 5,
+                height: 5
+            };
+            bullets.push(bullet);
+        }
+
+        function updateBullets() {
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let bullet = bullets[i];
+                bullet.x += Math.cos(bullet.angle) * bullet.speed;
+                bullet.y += Math.sin(bullet.angle) * bullet.speed;
+
+                // Check for wall collision
+                if (isWall(bullet.x, bullet.y)) {
+                    bullets.splice(i, 1);
+                    continue;
+                }
+
+                // Check for enemy collision
+                for (let j = 0; j < enemies.length; j++) {
+                    let enemy = enemies[j];
+                    let dx = enemy.x - bullet.x;
+                    let dy = enemy.y - bullet.y;
+                    if (Math.sqrt(dx * dx + dy * dy) < 15) {
+                        enemy.health -= 10;
+                        bullets.splice(i, 1);
+
+                        if (enemy.health <= 0) {
+                            enemies.splice(j, 1);
+                            player.score += 10;
+                            enemiesRemaining--;
+                            if (enemiesRemaining <= 0) {
+                                wave++;
+                                startNewWave();
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        function updateEnemies() {
+            for (let enemy of enemies) {
+                // Implement A* pathfinding to move towards player
+                let path = aStar(enemy, player);
+
+                if (path && path.length > 0) {
+                    let nextNode = path[0];
+
+                    // Move enemy towards next node in path
+                    let dx = nextNode.x - enemy.x;
+                    let dy = nextNode.y - enemy.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > 1) {
+                        enemy.x += (dx / dist) * enemy.speed; // Enemy speed
+                        enemy.y += (dy / dist) * enemy.speed;
+                    }
+                }
+
+                // Check if enemy is close to player
+                let ex = enemy.x;
+                let ey = enemy.y;
+                let dx = ex - player.x;
+                let dy = ey - player.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 30) {
+                    player.health -= enemy.damage; // Decrease health based on enemy damage
+                    if (player.health <= 0) {
+                        alert('Game Over! Your score: ' + player.score);
+                        window.location.reload();
+                    }
+                }
+            }
+        }
+
+        function aStar(start, end) {
+            let openSet = [];
+            let closedSet = [];
+            let startNode = {
+                x: Math.floor(start.x / TILE_SIZE),
+                y: Math.floor(start.y / TILE_SIZE),
+                g: 0,
+                h: heuristic(start, end),
+                f: 0,
+                parent: null
+            };
+            startNode.f = startNode.g + startNode.h;
+            openSet.push(startNode);
+
+            while (openSet.length > 0) {
+                // Find node with lowest f
+                let lowestIndex = 0;
+                for (let i = 1; i < openSet.length; i++) {
+                    if (openSet[i].f < openSet[lowestIndex].f) {
+                        lowestIndex = i;
+                    }
+                }
+                let current = openSet[lowestIndex];
+
+                // Check if reached goal
+                if (current.x === Math.floor(end.x / TILE_SIZE) && current.y === Math.floor(end.y / TILE_SIZE)) {
+                    // Build path
+                    let path = [];
+                    let temp = current;
+                    while (temp.parent) {
+                        path.push({ x: temp.x * TILE_SIZE + TILE_SIZE / 2, y: temp.y * TILE_SIZE + TILE_SIZE / 2 });
+                        temp = temp.parent;
+                    }
+                    path.reverse();
+                    return path;
+                }
+
+                // Move current from open to closed set
+                openSet.splice(lowestIndex, 1);
+                closedSet.push(current);
+
+                // Get neighbors
+                let neighbors = getNeighbors(current);
+                for (let neighbor of neighbors) {
+                    // Skip if in closed set or wall
+                    if (closedSet.find(n => n.x === neighbor.x && n.y === neighbor.y)) continue;
+                    if (map[neighbor.y][neighbor.x] !== 0) continue;
+
+                    let tentativeG = current.g + 1;
+
+                    let openNeighbor = openSet.find(n => n.x === neighbor.x && n.y === neighbor.y);
+                    if (!openNeighbor) {
+                        neighbor.g = tentativeG;
+                        neighbor.h = heuristic(neighbor, end);
+                        neighbor.f = neighbor.g + neighbor.h;
+                        neighbor.parent = current;
+                        openSet.push(neighbor);
+                    } else if (tentativeG < openNeighbor.g) {
+                        openNeighbor.g = tentativeG;
+                        openNeighbor.f = openNeighbor.g + openNeighbor.h;
+                        openNeighbor.parent = current;
+                    }
+                }
+            }
+            // No path found
+            return null;
+        }
+
+        function heuristic(a, b) {
+            // Manhattan distance
+            return Math.abs(a.x - Math.floor(b.x / TILE_SIZE)) + Math.abs(a.y - Math.floor(b.y / TILE_SIZE));
+        }
+
+        function getNeighbors(node) {
+            let neighbors = [];
+            let dirs = [
+                { x: 0, y: -1 },
+                { x: 1, y: 0 },
+                { x: 0, y: 1 },
+                { x: -1, y: 0 }
+            ];
+            for (let dir of dirs) {
+                let nx = node.x + dir.x;
+                let ny = node.y + dir.y;
+                if (nx >= 0 && nx < map[0].length && ny >= 0 && ny < map.length) {
+                    neighbors.push({
+                        x: nx,
+                        y: ny
+                    });
+                }
+            }
+            return neighbors;
+        }
+
+        function startNewWave() {
+            // Increase enemy stats
+            let numEnemies = wave + 2; // Increase number of enemies each wave
+            let enemyHealth = 30 + wave * 10; // Enemies get more health
+            let enemySpeed = 0.5 + wave * 0.1; // Enemies get faster
+            let enemyDamage = 0.1 + wave * 0.05; // Enemies do more damage
+
+            enemiesRemaining = numEnemies;
+
+            // Spawn enemies at random positions
+            for (let i = 0; i < numEnemies; i++) {
+                let spawnPosition = getRandomSpawnPosition();
+                enemies.push({
+                    x: spawnPosition.x,
+                    y: spawnPosition.y,
+                    health: enemyHealth,
+                    maxHealth: enemyHealth,
+                    speed: enemySpeed,
+                    damage: enemyDamage,
+                    path: []
+                });
+            }
+        }
+
+        function getRandomSpawnPosition() {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * map[0].length) * TILE_SIZE + TILE_SIZE / 2;
+                y = Math.floor(Math.random() * map.length) * TILE_SIZE + TILE_SIZE / 2;
+            } while (isWall(x, y) || distance(player.x, player.y, x, y) < TILE_SIZE * 3);
+            return { x, y };
+        }
+
+        function distance(x1, y1, x2, y2) {
+            return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+
+        function getEnemyColor(health, maxHealth) {
+            // Map health to hue from red (0) to violet (270)
+            let healthRatio = health / maxHealth;
+            let hue = 270 - 270 * healthRatio; // Health decreases from violet to red
+            return `hsl(${hue}, 100%, 50%)`;
+        }
+
+        // Initialize the game
+        startNewWave();
+        gameLoop();
+    </script>
+</body>
+</html>
